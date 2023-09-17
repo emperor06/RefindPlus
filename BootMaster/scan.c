@@ -3785,10 +3785,10 @@ BOOLEAN FindTool (
     FoundTool = FALSE;
 
     i = 0;
-    while ((DirName = FindCommaDelimited (Locations, i++)) != NULL) {
+    while (!FoundTool && (DirName = FindCommaDelimited (Locations, i++)) != NULL) {
         j = 0;
-        while ((FileName = FindCommaDelimited (Names, j++)) != NULL) {
-            PathName = StrDuplicate (DirName);
+        while (!FoundTool && (FileName = FindCommaDelimited (Names, j++)) != NULL) {
+            PathName  = StrDuplicate (DirName);
             MergeStrings (&PathName, FileName, MyStriCmp (PathName, L"\\") ? 0 : L'\\');
 
             for (VolumeIndex = 0; VolumeIndex < VolumesCount; VolumeIndex++) {
@@ -3842,6 +3842,7 @@ BOOLEAN FindTool (
                 #endif
 
                 FoundTool = TRUE;
+                break;
             } // for
 
             MY_FREE_POOL(PathName);
@@ -4286,6 +4287,7 @@ VOID ScanForBootloaders (VOID) {
     LOG_DECREMENT();
     LOG_SEP(L"X");
 } // VOID ScanForBootloaders()
+
 
 // Add the second-row tags containing built-in and external tools
 VOID ScanForTools (VOID) {
