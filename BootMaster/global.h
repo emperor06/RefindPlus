@@ -83,14 +83,16 @@
 #define TAG_BOOTORDER            (17)
 #define TAG_INSTALL              (18)
 #define TAG_NVRAMCLEAN           (19)
-#define NUM_TOOLS                (20)
+#define TAG_VENTOY               (20)
+#define NUM_TOOLS                (21)
 // Other Tags
-#define TAG_TOOL                 (21)
-#define TAG_LOADER               (22)
-#define TAG_LEGACY               (23)
-#define TAG_LEGACY_UEFI          (24)
-#define TAG_RESET_NVRAM          (25)
-#define TAG_FIRMWARE_LOADER      (26)
+#define TAG_TOOL                 (22)
+#define TAG_LOADER               (23)
+#define TAG_LEGACY               (24)
+#define TAG_LEGACY_UEFI          (25)
+#define TAG_RESET_NVRAM          (26)
+#define TAG_FIRMWARE_LOADER      (27)
+
 
 #define NUM_SCAN_OPTIONS         (10)
 
@@ -257,6 +259,9 @@ EFI\\BOOT\\tools\\memtest86,EFI\\BOOT\\tools\\memtest,EFI\\BOOT\\tools\\memtest8
 EFI\\BOOT\\memtest86,EFI\\BOOT\\memtest,EFI\\BOOT\\memtest86p,\
 EFI\\memtest86,EFI\\memtest,EFI\\memtest86p"
 #endif
+
+// Directories to search for Ventoy
+#   define VENTOY_LOCATIONS L"EFI\\ventoy,EFI\\BOOT"
 
 // Files that may be Windows recovery files
 #if defined (EFIX64)

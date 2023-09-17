@@ -773,6 +773,9 @@
 #                           See documentation for details
 #  memtest          - Memory Testing Utility.
 #                       NB: Requires external memtest program
+#  ventoy           - Boot iso files.
+#                       NB: Requires Ventoy installed in
+#                           EFI/ventoy or EFI/BOOT
 #  gptsync          - The (Dangerous) 'GPTsync' Utility.
 #                       NB: Requires external program
 #                           See documentation for details
@@ -807,7 +810,7 @@
 # The default options are scanned for when commented out
 # NB: Setting "showtools" alone, without any options, disables scanning for tools
 #
-#showtools shell,bootorder,gdisk,memtest,mok_tool,apple_recovery,windows_recovery,about,hidden_tags,reboot,exit
+#showtools shell,bootorder,gdisk,memtest,ventoy,mok_tool,apple_recovery,windows_recovery,about,hidden_tags,reboot,exit
 
 # Stub support for gzipped loaders. Linux kernels are self-decompressing on x86
 # and on x86-64 platforms while on ARM64, Linux kernel files, including the EFI

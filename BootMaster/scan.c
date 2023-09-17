@@ -4428,6 +4428,7 @@ VOID ScanForTools (VOID) {
             case TAG_GPTSYNC:          ToolName = LABEL_GPTSYNC        ;    break;
             case TAG_NVRAMCLEAN:       ToolName = LABEL_CLEAN_NVRAM    ;    break;
             case TAG_MEMTEST:          ToolName = LABEL_MEMTEST        ;    break;
+            case TAG_VENTOY:           ToolName = LABEL_VENTOY         ;    break;
             case TAG_HIDDEN:           ToolName = LABEL_HIDDEN         ;    break;
             case TAG_MOK_TOOL:         ToolName = L"MOK Protocol"      ;    break;
             case TAG_NETBOOT:          ToolName = L"Net Boot"          ;    break;
@@ -5422,6 +5423,24 @@ VOID ScanForTools (VOID) {
                     ToolStr = PoolPrint (
                         L"Could *NOT* Find Tool:- '%s'", ToolName
                     );
+                    ALT_LOG(1, LOG_THREE_STAR_END, L"%s", ToolStr);
+                    LOG_MSG("*_ WARN _*    %s", ToolStr);
+                    MY_FREE_POOL(ToolStr);
+                }
+                #endif
+
+            break;
+            case TAG_VENTOY:
+                FoundTool = FindTool (
+                    VENTOY_LOCATIONS,
+                    VENTOY_LNAMES,
+                    ToolName,
+                    BUILTIN_ICON_TOOL_VENTOY
+                );
+
+                #if REFIT_DEBUG > 0
+                if (!FoundTool) {
+                    ToolStr = PoolPrint (L"Could Not Find Tool:- '%s'", ToolName);
                     ALT_LOG(1, LOG_THREE_STAR_END, L"%s", ToolStr);
                     LOG_MSG("*_ WARN _*    %s", ToolStr);
                     MY_FREE_POOL(ToolStr);

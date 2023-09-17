@@ -186,6 +186,10 @@ VOID SyncDontScanDirs (VOID) {
             MEMTEST_LOCATIONS, L','
         );
     }
+    MergeUniqueItems (
+        &GlobalConfig.DontScanDirs,
+        VENTOY_LOCATIONS, L','
+    );
 
     if (SelfVolume  == NULL ||
         SelfDirPath == NULL
@@ -297,6 +301,7 @@ VOID SyncShowTools (VOID) {
     GlobalConfig.ShowTools[9]  =           TAG_REBOOT;
     GlobalConfig.ShowTools[10] =         TAG_FIRMWARE;
     GlobalConfig.ShowTools[11] =    TAG_FWUPDATE_TOOL;
+    GlobalConfig.ShowTools[12] =           TAG_VENTOY;
 } // static VOID SyncShowTools()
 
 // Get a single line of text from a file
@@ -2846,6 +2851,7 @@ VOID ReadConfig (
                 else if (MyStrBegins (L"reboot",           Flag)) GlobalConfig.ShowTools[j] = TAG_REBOOT;
                 else if (MyStrBegins (L"gptsync",          Flag)) GlobalConfig.ShowTools[j] = TAG_GPTSYNC;
                 else if (MyStrBegins (L"memtest",          Flag)) GlobalConfig.ShowTools[j] = TAG_MEMTEST;
+                else if (MyStrBegins (L"ventoy",           Flag)) GlobalConfig.ShowTools[j] = TAG_VENTOY;
                 else if (MyStrBegins (L"install",          Flag)) GlobalConfig.ShowTools[j] = TAG_INSTALL;
                 else if (MyStrBegins (L"netboot",          Flag)) GlobalConfig.ShowTools[j] = TAG_NETBOOT;
                 else if (MyStrBegins (L"shutdown",         Flag)) GlobalConfig.ShowTools[j] = TAG_SHUTDOWN;
