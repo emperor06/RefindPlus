@@ -533,21 +533,7 @@ VOID SetupScreen (VOID) {
                 // Start with screen blanked
                 GraphicsScreenDirty = TRUE;
             }
-            else {
-                // Clear the screen
-                BltClearScreen (TRUE);
-
-                #if REFIT_DEBUG > 0
-                TmpStr = L"Title Banner Displayed";
-                MsgStr = (TextOption) ? L"Graphics Mode Deployed" : TmpStr;
-                ALT_LOG(1, LOG_THREE_STAR_MID, L"%s", MsgStr);
-                LOG_MSG("INFO: %s", MsgStr);
-
-                if (TextOption) {
-                    LOG_MSG("%s      %s", OffsetNext, TmpStr);
-                }
-                #endif
-            }
+            BannerLoaded = TRUE;
 
             #if REFIT_DEBUG > 0
             if (NativeLogger && GlobalConfig.LogLevel > 0) {
@@ -1666,25 +1652,6 @@ VOID BltClearScreen (
                 MY_FREE_IMAGE(Banner);
                 Banner = NewBanner;
             }
-        }
-
-        BREAD_CRUMB(L"%s:  2b 2", FuncTag);
-        // Clear and draw banner
-        #if REFIT_DEBUG > 0
-        LOG_MSG("%s  - Clear Screen",
-            (GlobalConfig.LogLevel <= LOGLEVELMAX)
-                ? OffsetNext
-                : L""
-        );
-        BRK_MAX("\n");
-        #endif
-        if (GlobalConfig.ScreensaverTime != -1) {
-            BREAD_CRUMB(L"%s:  2b 2a 1 - (Set Screen to Menu Background Colour)", FuncTag);
-            egClearScreen (&MenuBackgroundPixel);
-        }
-        else {
-            BREAD_CRUMB(L"%s:  2b 2b 1 - (Set Screen to Black)", FuncTag);
-            egClearScreen (&BlackPixel);
         }
 
         BREAD_CRUMB(L"%s:  2b 3", FuncTag);
