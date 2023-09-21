@@ -183,6 +183,13 @@ REFIT_CONFIG GlobalConfig = {
     .ExtraKernelVersionStrings =                    NULL,
     .SpoofOSXVersion           =                    NULL,
     .CsrValues                 =                    NULL,
+    .Splash = {
+        SPLASH_MODE_CLEAR,
+        {0, 0, 0, 0},
+        FALSE,
+        NULL,
+        NULL
+    },
     .IconSizes = {
         DEFAULT_BIG_ICON_SIZE / 4,
         DEFAULT_SMALL_ICON_SIZE,

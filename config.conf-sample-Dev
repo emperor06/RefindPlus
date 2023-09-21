@@ -586,6 +586,62 @@
 #
 #transient_boot
 
+# When transitioning to the kernel or another bootloader (booting),
+# RefindPlus clears the screen, leaving a pure black framebuffer to its successor.
+# On many devices, especially with large screens, this clearing is not instant
+# and looks like a flicker. Things get worse when that successor is an
+# initramfs that needs to be decompressed and loaded, leaving a black screen
+# for a split second. And that black screen can stay even longer when this
+# initramfs has to initialize and run plymouth.
+# From kernel 5.7, a bug in the Intel i915 driver prevents the use of fastboot,
+# which dramatically alters the smooth transition between RefindPlus and plymouth,
+# switching the screen off and on when kms is enabled early.
+# In some cases, it's desiderabe to clear the screen, for example when text booting
+# or when the vendor logo is still there. If clearing from a bright color to
+# black induces a flicker, it may be better to clear the screen with a solid
+# light color. Another option would be to not clear the screen at all,
+# leaving RefindPlus' banner up until plymouth is ready to draw.
+# Lastly, an alternate splash image could be used when leaving RefindPlus,
+# for example to provide a splash boot to Windows LTSC or to match a linux
+# splash image provided by plymouth later on, giving a smoother transition.
+#
+# The splash_image option enables this feature. It can take the following
+# arguments: clear, keep, color, banner, icon, image, loader
+# 'clear' paints the screen black when booting while 'color' uses the splash_color.
+# keep' does not clear the screen (it keeps the framebuffer as is).
+# 'banner' paints the screen with the banner image.
+# 'icon' is like 'banner' but adds the entry icon in the middle of the screen.
+# 'image' uses the image given by 'splash_image' option.
+# 'loader' uses an image next to the loader, with the same name but without the
+# extension and adding "-splash.png". Eg: vmlinuz-linux-splash.png or
+# grubx64-splash.png. This allows the use of different splash screens per loader
+# (and even kernel). This is similar to having a custom icon per loader,
+# only it ends with "-splash.png" and supports only png. May support all image
+# formats that RefindPlus supports in another update (jpeg, bmp).
+#
+# splash_mode clear|color|keep|banner|icon|image|loader
+
+# When set to 'fillscreen', the banner image, splash image, and loader image
+# are stretched to fill the screen. Otherwise, they are cropped to fit.
+#
+# splash_scale fillscreen|noscale
+
+# RGB color to paint the background of the splash boot.
+# Applied when 'splash_mode' is color, image, or loader.
+# Note: banner and icon options use 'screen_rgb'.
+# Values for r, g, and b must be between 0 and 255 inclusive.
+#
+# splash_color r g b
+
+# Instead of using the banner image, RefindPlus can use a custom image
+# as splash boot, that may help transitionning to the system, or provide
+# a nice visual different than the boot menu.
+# The splash image must be located in RefindPlus's folder on the ESP.
+# It is best used when declared in a theme, so that each theme can have its
+# own splash image.
+#
+# splash_image themes/mytheme/splash.png
+
 # RefindPlus previously simply picked and used the first Unicode Collation
 # Protocol instance it finds. This resulted in a lottery where such instances
 # sometimes worked and sometimes did not. The proper implementation process

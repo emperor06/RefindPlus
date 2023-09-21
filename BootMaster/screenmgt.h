@@ -147,4 +147,10 @@ VOID PrintUglyText (
     IN CHAR16 *Text,
     IN UINTN   PositionCode
 );
+VOID DisplaySplash (IN LOADER_ENTRY *Entry);
+VOID ComposeImageCentered (
+    IN OUT EG_IMAGE *Background,
+    IN EG_IMAGE     *Overlay,
+    IN BOOLEAN       Fillscreen
+);
 #endif

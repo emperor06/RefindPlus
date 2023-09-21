@@ -393,6 +393,17 @@ EFI_STATUS OcUseDirectGop (IN INT32 CacheType);
 EFI_STATUS OcUseBuiltinTextOutput (IN EFI_CONSOLE_CONTROL_SCREEN_MODE Mode);
 #endif
 
+// Splash boot modes
+typedef enum  {
+    SPLASH_MODE_CLEAR,            // Clear screen on boot
+    SPLASH_MODE_KEEP,             // Don't clear screen, keep the current FB
+    SPLASH_MODE_COLOR,            // Paint screen with MenuColor on boot
+    SPLASH_MODE_BANNER,           // Use banner as splash
+    SPLASH_MODE_ICON,             // Loader icon over banner
+    SPLASH_MODE_IMAGE,            // Custom splash boot image
+    SPLASH_MODE_LOADER            // Per-loader splash boot image
+} SPLASH_MODE;
+
 
 #define LOGLEVELOFF (-1)
 #define LOGLEVELMIN  (0)
@@ -499,6 +510,14 @@ typedef struct {
 } LEGACY_ENTRY;
 
 typedef struct {
+    SPLASH_MODE                 Mode;
+    EG_PIXEL                    Color;            // RGBA
+    BOOLEAN                     Fillscreen;
+    CHAR16                     *ImagePath;
+    LOADER_ENTRY               *Entry;            // get the icon and loader image from this
+} SPLASH_CONFIG;
+
+typedef struct {
     BOOLEAN                     DirectBoot;
     BOOLEAN                     CustomScreenBG;
     BOOLEAN                     TextOnly;
@@ -599,6 +618,7 @@ typedef struct {
     CHAR16                     *LinuxMatchPatterns; // Linux prefixes PLUS wildcards (e.g., L"vmlinuz*,bzImage*")
     CHAR16                     *ExtraKernelVersionStrings;
     CHAR16                     *SpoofOSXVersion;
+    SPLASH_CONFIG               Splash;
     UINT32_LIST                *CsrValues;
     UINTN                       IconSizes[4];
     UINTN                       ShowTools[NUM_TOOLS];

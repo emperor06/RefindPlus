@@ -4133,6 +4133,78 @@ VOID ReadConfig (
                 #endif
             }
         }
+        else if (MyStriCmp (TokenList[0], L"splash_mode") && (TokenCount == 2)) {
+            #if REFIT_DEBUG > 0
+            if (!OuterLoop) {
+                UpdatedToken = LogUpdate (
+                    TokenList[0], NotRunBefore, TRUE
+                );
+            }
+            #endif
+
+            if (MyStriCmp (TokenList[1], L"clear")) {
+                GlobalConfig.Splash.Mode = SPLASH_MODE_CLEAR;
+            }
+            else if (MyStriCmp (TokenList[1], L"keep")) {
+                GlobalConfig.Splash.Mode = SPLASH_MODE_KEEP;
+            }
+            else if (MyStriCmp (TokenList[1], L"color")) {
+                GlobalConfig.Splash.Mode = SPLASH_MODE_COLOR;
+            }
+            else if (MyStriCmp (TokenList[1], L"banner")) {
+                GlobalConfig.Splash.Mode = SPLASH_MODE_BANNER;
+            }
+            else if (MyStriCmp (TokenList[1], L"icon")) {
+                GlobalConfig.Splash.Mode = SPLASH_MODE_ICON;
+            }
+            else if (MyStriCmp (TokenList[1], L"image")) {
+                GlobalConfig.Splash.Mode = SPLASH_MODE_IMAGE;
+            }
+            else if (MyStriCmp (TokenList[1], L"loader")) {
+                GlobalConfig.Splash.Mode = SPLASH_MODE_LOADER;
+            }
+            else {
+                GlobalConfig.Splash.Mode = SPLASH_MODE_CLEAR;
+            }
+        }
+        else if (MyStriCmp (TokenList[0], L"splash_image") && (TokenCount > 1)) {
+            #if REFIT_DEBUG > 0
+            if (!OuterLoop) {
+                UpdatedToken = LogUpdate (
+                    TokenList[0], NotRunBefore, TRUE
+                );
+            }
+            #endif
+            HandleString (TokenList, TokenCount, &(GlobalConfig.Splash.ImagePath));
+        }
+        else if (MyStriCmp (TokenList[0], L"splash_scale") && (TokenCount > 1)) {
+            #if REFIT_DEBUG > 0
+            if (!OuterLoop) {
+                UpdatedToken = LogUpdate (
+                    TokenList[0], NotRunBefore, TRUE
+                );
+            }
+            #endif
+            GlobalConfig.Splash.Fillscreen = MyStriCmp (TokenList[1], L"fillscreen");
+        }
+        else if (MyStriCmp (TokenList[0], L"splash_color") && TokenCount == 4) {
+            #if REFIT_DEBUG > 0
+            if (!OuterLoop) {
+                UpdatedToken = LogUpdate (
+                    TokenList[0], NotRunBefore, TRUE
+                );
+            }
+            #endif
+            UINTN SplashR = (UINTN) Atoi(TokenList[1]);
+            UINTN SplashG = (UINTN) Atoi(TokenList[2]);
+            UINTN SplashB = (UINTN) Atoi(TokenList[3]);
+
+            if (SplashR < 256 && SplashG < 256 && SplashB < 256) {
+                GlobalConfig.Splash.Color.r = (UINT8) SplashR;
+                GlobalConfig.Splash.Color.g = (UINT8) SplashG;
+                GlobalConfig.Splash.Color.b = (UINT8) SplashB;
+            }
+        }
 
         FreeTokenLine (&TokenList, &TokenCount);
     } // for ;;

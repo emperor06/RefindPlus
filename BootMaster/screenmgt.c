@@ -46,7 +46,6 @@
  *
  * Modifications distributed under the preceding terms.
  */
-
 #include "global.h"
 #include "screenmgt.h"
 #include "config.h"
@@ -116,6 +115,141 @@ VOID egFreeImageQEMU (
 } // static VOID egFreeImageQEMU()
 #endif
 
+VOID ComposeImageCentered (
+    IN OUT EG_IMAGE *Background,
+    IN EG_IMAGE     *Overlay,
+    IN BOOLEAN       Fillscreen
+) {
+    EG_IMAGE *TempImage;
+    UINTN     Width,
+              Height,
+              PosX,
+              PosY;
+
+    if (Background && Overlay) {
+        TempImage = NULL;
+        Width     = Background->Width;
+        Height    = Background->Height;
+
+        if (Fillscreen && (Overlay->Width != Width || Overlay->Height != Height)) {
+            TempImage = egScaleImage (Overlay, Width, Height);
+        }
+        else if (!Fillscreen && (Overlay->Width > Width || Overlay->Height > Height)) {
+            TempImage = egCropImage (
+                Overlay, 0, 0,
+                (Overlay->Width  > Width ) ? Width  : Overlay->Width,  // MIN(Width,  Overlay->Width)
+                (Overlay->Height > Height) ? Height : Overlay->Height  // MIN(Height, Overlay->Height)
+            );
+        }
+
+        if (TempImage != NULL) {
+            MY_FREE_IMAGE(Overlay);
+            Overlay = TempImage;
+        }
+
+        // Centering if necessary
+        PosX = (Overlay->Width  < Width ) ? ((Width  - Overlay->Width ) / 2) : 0;
+        PosY = (Overlay->Height < Height) ? ((Height - Overlay->Height) / 2) : 0;
+
+        egComposeImage(Background, Overlay, PosX, PosY);
+    }
+}
+
+VOID DisplaySplash (IN LOADER_ENTRY *Entry) {
+    BOOLEAN   Done;
+    EG_PIXEL  Color;
+    CHAR16   *LoaderPath,
+             *LoaderFileName,
+             *LoaderName,
+             *LoaderSplashFile;
+    EG_IMAGE *Icon,
+             *Background,
+             *SplashImage;
+
+    Done       = FALSE;
+    Color      = BlackPixel;
+    Icon       = Background = SplashImage = NULL;
+    LoaderPath = LoaderFileName = LoaderName = LoaderSplashFile = NULL;
+
+    switch (GlobalConfig.Splash.Mode) {
+        case SPLASH_MODE_KEEP:
+            Done = TRUE;
+            break;
+
+        case SPLASH_MODE_CLEAR:
+            egClearScreen (&BlackPixel);
+            Done = TRUE;
+            break;
+
+        case SPLASH_MODE_COLOR:
+            egClearScreen (&GlobalConfig.Splash.Color);
+            Done = TRUE;
+            break;
+
+        case SPLASH_MODE_ICON:
+            if (Entry && Entry->me.Image) {
+                Icon = egCopyImage (Entry->me.Image);
+            }
+            // no break
+
+        case SPLASH_MODE_BANNER:
+            if (GlobalConfig.CustomScreenBG) {
+                Color.r = GlobalConfig.ScreenR;
+                Color.g = GlobalConfig.ScreenG;
+                Color.b = GlobalConfig.ScreenB;
+            }
+            SplashImage = egLoadImage (SelfDir, GlobalConfig.BannerFileName, TRUE);
+            break;
+
+        case SPLASH_MODE_LOADER:
+            LoaderPath       = FindPath (Entry->LoaderPath);
+            LoaderFileName   = Basename (Entry->LoaderPath);
+            LoaderSplashFile = StripEfiExtension (LoaderFileName);
+            MergeStrings (&LoaderPath, LoaderSplashFile, '\\');
+            MergeStrings (&LoaderPath, L"-splash.png", 0);
+            SplashImage      = egLoadImage(Entry->Volume->RootDir, LoaderPath, FALSE);
+
+            if (SplashImage) {
+                break;
+            }
+            // no break
+
+        case SPLASH_MODE_IMAGE:
+            Color = GlobalConfig.Splash.Color;
+            SplashImage = egLoadImage (SelfDir, GlobalConfig.Splash.ImagePath, TRUE);
+            break;
+
+    }
+
+    if (!Done) {
+        Background = egCreateFilledImage (ScreenW, ScreenH, FALSE, &Color);
+
+        if (Background) {
+            if (SplashImage) {
+                ComposeImageCentered (Background, SplashImage, GlobalConfig.Splash.Fillscreen);
+                MY_FREE_IMAGE(SplashImage);
+            }
+            if (Icon) {
+                ComposeImageCentered (Background, Icon, FALSE);
+                MY_FREE_IMAGE(Icon);
+            }
+            egDrawImage (Background, 0, 0);
+        }
+        else {
+            // Last failsafe
+            egClearScreen (&BlackPixel);
+        }
+    }
+
+    GraphicsScreenDirty = TRUE;
+    MY_FREE_POOL(LoaderPath);
+    MY_FREE_POOL(LoaderFileName);
+    MY_FREE_POOL(LoaderName);
+    MY_FREE_POOL(LoaderSplashFile);
+    MY_FREE_IMAGE(Background);
+    MY_FREE_IMAGE(Icon);
+    MY_FREE_IMAGE(SplashImage);
+} // DisplaySplash()
 
 VOID FixIconScale (VOID) {
     if (IconScaleSet || GlobalConfig.ScaleUI == 99) {
@@ -288,7 +422,6 @@ VOID SetupScreen (VOID) {
 
     #if REFIT_DEBUG > 0
     CHAR16 *MsgStr;
-    CHAR16 *TmpStr;
 
     if (!BannerLoaded) {
         LOG_MSG("D I S P L A Y   T I T L E   B A N N E R");
@@ -759,6 +892,7 @@ VOID FinishTextScreen (
     LOG_SEP(L"X");
 } // VOID FinishTextScreen()
 
+// Configure screen for booting (or launching tools)
 VOID BeginExternalScreen (
     IN BOOLEAN  UseGraphicsMode,
     IN CHAR16  *Title
@@ -788,14 +922,8 @@ VOID BeginExternalScreen (
     BOOLEAN  CheckMute = FALSE;
     #endif
 
-    BREAD_CRUMB(L"%s:  2", FuncTag);
-    if (!AllowGraphicsMode) {
-        BREAD_CRUMB(L"%s:  2a 1", FuncTag);
-        UseGraphicsMode = FALSE;
-    }
-
     BREAD_CRUMB(L"%s:  3", FuncTag);
-    if (UseGraphicsMode) {
+    if (AllowGraphicsMode && UseGraphicsMode) {
         BREAD_CRUMB(L"%s:  3a 1", FuncTag);
         #if REFIT_DEBUG > 0
         MsgStr = L"Begin Child Image Display with Screen Mode:- 'Graphics'";
@@ -808,8 +936,14 @@ VOID BeginExternalScreen (
         #endif
 
         BREAD_CRUMB(L"%s:  3a 2", FuncTag);
-        SwitchToGraphicsAndClear (FALSE);
-    }
+        if (!IsBoot) { // tool
+            SwitchToGraphicsAndClear (FALSE);
+        }
+        else {         // graphical boot
+            SwitchToGraphics();
+            DisplaySplash(GlobalConfig.Splash.Entry);
+        }
+    } // if graphics
     else {
         BREAD_CRUMB(L"%s:  3b 1", FuncTag);
         #if REFIT_DEBUG > 0
@@ -832,7 +966,7 @@ VOID BeginExternalScreen (
         #if REFIT_DEBUG > 0
         MY_MUTELOGGER_OFF;
         #endif
-    }
+    } // if text
 
     // Reset error flag
     haveError = FALSE;
@@ -1475,43 +1609,14 @@ VOID BltClearScreen (
     #endif
 #endif
 
+    BannerPass = !IsBoot && ShowBanner && !(GlobalConfig.HideUIFlags & HIDEUI_FLAG_BANNER);
+
     LOG_SEP(L"X");
     LOG_INCREMENT();
     BREAD_CRUMB(L"%s:  1 - START", FuncTag);
 
-    #if REFIT_DEBUG > 0
-    if (!IsBoot) {
-        LOG_MSG("Refresh Screen:");
-        BRK_MAX("\n");
-    }
-    #endif
-
     BREAD_CRUMB(L"%s:  2", FuncTag);
-    BannerPass = (
-        !IsBoot ||
-        (
-            ShowBanner &&
-            !(GlobalConfig.HideUIFlags & HIDEUI_FLAG_BANNER)
-        )
-    );
-    if (!BannerPass) {
-        BREAD_CRUMB(L"%s:  2a 1 - (Set Screen to Menu Background Colour)", FuncTag);
-        #if REFIT_DEBUG > 0
-        if (!IsBoot) {
-            LOG_MSG("%s  - Clear Screen",
-                (GlobalConfig.LogLevel <= LOGLEVELMAX) ? OffsetNext : L""
-            );
-        }
-        #endif
-
-        // Not showing banner
-        // Clear to background colour
-        egClearScreen (
-            (GlobalConfig.DirectBoot)
-                ? &BlackPixel : &MenuBackgroundPixel
-        );
-    }
-    else {
+    if (BannerPass) {
         BREAD_CRUMB(L"%s:  2b 1", FuncTag);
         // Load banner on first call
         if (!Banner) {
@@ -1713,7 +1818,7 @@ VOID BltClearScreen (
         #if REFIT_DEBUG > 0
         LOG_MSG("\n\n");
         #endif
-    } // if/else !BannerPass
+    } // if BannerPass
 
     GraphicsScreenDirty = FALSE;
 

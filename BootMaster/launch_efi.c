@@ -1185,6 +1185,7 @@ VOID StartLoader (
 
     IsBoot        = TRUE;
     BootSelection = SelectionName;
+    GlobalConfig.Splash.Entry = Entry;
 
     #if REFIT_DEBUG > 0
     if (TrustSynced) {
@@ -1238,6 +1239,7 @@ VOID StartTool (
         L"Launch Child (Tool) Image:- '%s'",
         Entry->me.Title
     );
+    GlobalConfig.Splash.Entry = Entry;
 
     #if REFIT_DEBUG > 0
     ALT_LOG(1, LOG_LINE_NORMAL, L"%s", MsgStr);
