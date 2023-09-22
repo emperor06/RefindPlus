@@ -3823,7 +3823,7 @@ BOOLEAN FindTool (
                     Volumes[VolumeIndex],
                     StrDuplicate (PathName),
                     ToolData, BuiltinIcon (Icon),
-                    'S', FALSE
+                    'S', TRUE
                 );
 
                 #if REFIT_DEBUG > 0
