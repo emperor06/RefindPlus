@@ -1289,7 +1289,7 @@ VOID StartTool (
         Entry->LoadOptions,
         LoaderPath,
         Entry->OSType,
-        TRUE, FALSE, NULL
+        FALSE, FALSE, NULL
     );
 
     MY_FREE_POOL(MsgStr);
