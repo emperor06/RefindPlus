@@ -552,6 +552,7 @@ typedef struct {
     BOOLEAN                     HelpSize;
     BOOLEAN                     HelpText;
     BOOLEAN                     SetAppleFB;
+    BOOLEAN                     NoConfirmation;
     UINTN                       BannerScale;
     UINTN                       GraphicsFor;
     UINTN                       LegacyType;

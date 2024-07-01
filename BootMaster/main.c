@@ -135,6 +135,7 @@ REFIT_CONFIG GlobalConfig = {
     .HelpSize                  =                    TRUE,
     .HelpText                  =                    TRUE,
     .SetAppleFB                =                    TRUE,
+    .NoConfirmation            =                   FALSE,
     .BannerScale               =          BANNER_NOSCALE,
     .GraphicsFor               =        GRAPHICS_FOR_OSX,
     .LegacyType                =        LEGACY_TYPE_NONE,
@@ -3887,7 +3888,7 @@ EFI_STATUS EFIAPI efi_main (
                 //   - TRUE  == Show Confirmation Screen ... NO
                 if (!FoundTool) {
                     // Request confirmation
-                    FoundTool = ConfirmRestart();
+                    FoundTool = GlobalConfig.NoConfirmation || ConfirmRestart();
                     if (!FoundTool) {
                         MainLoopRunning = TRUE;
 
@@ -3941,7 +3942,7 @@ EFI_STATUS EFIAPI efi_main (
             case TAG_SHUTDOWN: // Shut Down
                 TypeStr = L"Running System Shutdown";
 
-                RunOurTool = ConfirmShutdown();
+                RunOurTool = GlobalConfig.NoConfirmation || ConfirmShutdown();
                 if (!RunOurTool) {
                     #if REFIT_DEBUG > 0
                     MsgStr = PoolPrint (L"Aborted %s", TypeStr);

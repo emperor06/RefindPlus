@@ -1010,7 +1010,7 @@ EFI_STATUS RebootIntoFirmware (VOID) {
     ALT_LOG(1, LOG_THREE_STAR_SEP, L"%s", TmpStr);
     #endif
 
-    ConfirmAction = ConfirmReboot(TmpStr);
+    ConfirmAction = GlobalConfig.NoConfirmation || ConfirmReboot(TmpStr);
     if (!ConfirmAction) {
         #if REFIT_DEBUG > 0
         ALT_LOG(1, LOG_LINE_NORMAL, L"Aborted by User");
@@ -1086,7 +1086,7 @@ VOID RebootIntoLoader (
     ALT_LOG(1, LOG_THREE_STAR_SEP, L"%s", TmpStr);
     #endif
 
-    ConfirmAction = ConfirmReboot(TmpStr);
+    ConfirmAction = GlobalConfig.NoConfirmation || ConfirmReboot(TmpStr);
     if (!ConfirmAction) {
         #if REFIT_DEBUG > 0
         MsgStr = StrDuplicate (L"Aborted by User");

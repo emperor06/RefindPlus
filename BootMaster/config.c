@@ -2754,6 +2754,17 @@ VOID ReadConfig (
 
             GlobalConfig.UseNvram = HandleBoolean (TokenList, TokenCount);
         }
+        else if (MyStriCmp(TokenList[0], L"no_confirmation")) {
+            #if REFIT_DEBUG > 0
+            if (!OuterLoop) {
+                UpdatedToken = LogUpdate(
+                    TokenList[0], NotRunBefore, TRUE
+                );
+            }
+            #endif
+
+            GlobalConfig.NoConfirmation = HandleBoolean(TokenList, TokenCount);
+        }
         else if (MyStriCmp (TokenList[0], L"disable_rescan_dxe")) {
             #if REFIT_DEBUG > 0
             if (!OuterLoop) {
